@@ -1,0 +1,172 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body, html {
+    width: 100%;
+    height: 100%;
+    background-color: #ffffff;
+}
+
+/* Toolstrip superior */
+.toolstrip {
+    width: 100%;
+    height: 55px;
+    background-color: #dde6ed;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 20px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.toolstrip-titulo {
+    font-size: 12pt;
+    font-weight: bold;
+    color: #003366;
+}
+
+.btn-action {
+    background-color: #cfe2f3;
+    color: #003366;
+    font-size: 10pt;
+    font-weight: bold;
+    border: none;
+    padding: 8px 14px;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-left: 8px;
+    text-decoration: none;
+}
+
+.btn-action:hover {
+    background-color: #a4c2f4;
+}
+
+.btn-volver {
+    background-color: #ffc7ce;
+    color: #9c0006;
+}
+
+.btn-volver:hover {
+    background-color: #f8a5ad;
+}
+
+/* Contenedor de Filtros */
+.filtro-container {
+    padding: 15px 20px 5px 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.filtro-label {
+    font-size: 11pt;
+    font-weight: bold;
+    color: #003366;
+}
+
+.input-text, .select-control {
+    padding: 6px 10px;
+    border: 1px solid #cccccc;
+    border-radius: 4px;
+    font-size: 10pt;
+}
+
+/* Tabla de Datos */
+.tabla-container {
+    padding: 15px 20px;
+}
+
+.tabla-mp {
+    width: 100%;
+    border-collapse: collapse;
+    border: 1px solid #cccccc;
+}
+
+.tabla-mp th {
+    background-color: #d9e1f2;
+    color: #003366;
+    font-size: 11pt;
+    font-weight: bold;
+    padding: 10px;
+    text-align: left;
+    border-bottom: 1px solid #cccccc;
+}
+
+.tabla-mp td {
+    padding: 8px 10px;
+    border-bottom: 1px solid #eeeeee;
+    font-size: 10pt;
+}
+
+.tabla-mp tr:hover {
+    background-color: #cfe2f3;
+    cursor: pointer;
+}
+
+.tabla-mp tr.selected {
+    background-color: #a4c2f4 !important;
+}
+
+/* Modal Ventana ABM */
+.modal-overlay {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.4);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 2000;
+}
+
+.modal-content {
+    background: #ffffff;
+    width: 450px;
+    border-radius: 6px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    overflow: hidden;
+}
+
+.modal-header {
+    background: #dde6ed;
+    padding: 12px 20px;
+    font-weight: bold;
+    color: #003366;
+    display: flex;
+    justify-content: space-between;
+}
+
+.modal-body {
+    padding: 20px;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    display: block;
+    font-weight: bold;
+    color: #003366;
+    margin-bottom: 5px;
+}
+
+.form-group input, .form-group select {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #cccccc;
+    border-radius: 4px;
+}
+
+.btn-guardar {
+    background-color: #c6efce;
+    color: #006100;
+}
+
+.btn-guardar:hover {
+    background-color: #a3e0b0;
+}

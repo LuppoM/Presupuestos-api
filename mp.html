@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Control de Materias Primas</title>
+    <link rel="icon" type="image/x-icon" href="/archivos/icono.ico">
+    <link rel="stylesheet" href="/archivos/mpvista.css">
+</head>
+<body>
+
+    <!-- Toolstrip Barra de Herramientas -->
+    <div class="toolstrip">
+        <div class="toolstrip-titulo">Control de Materias Primas</div>
+        <div>
+            <button onclick="abrirABM('AGREGAR')" class="btn-action">Agregar Material</button>
+            <button onclick="abrirABM('MODIFICAR')" class="btn-action">Modificar</button>
+            <button onclick="eliminarSeleccionado()" class="btn-action">Eliminar</button>
+            <a href="/principal" class="btn-action btn-volver">Cerrar</a>
+        </div>
+    </div>
+
+    <!-- Filtro de Búsqueda -->
+    <div class="filtro-container">
+        <span class="filtro-label">Filtrar por:</span>
+        <select id="filtroCampo" class="select-control">
+            <option value="nombre">Nombre</option>
+            <option value="id">ID</option>
+            <option value="unidad_medida">U. Medida</option>
+        </select>
+        <input type="text" id="filtroTexto" onkeyup="aplicarFiltro()" placeholder="Escriba para buscar..." class="input-text" style="width: 300px;">
+    </div>
+
+    <!-- Tabla principal -->
+    <div class="tabla-container">
+        <table class="tabla-mp">
+            <thead>
+                <tr>
+                    <th style="width: 80px; text-align: center;">ID</th>
+                    <th>Nombre</th>
+                    <th style="width: 180px; text-align: center;">Unidad Medida</th>
+                    <th style="width: 180px; text-align: right;">Precio Unitario</th>
+                </tr>
+            </thead>
+            <tbody id="tablaCuerpo">
+                <tr><td colspan="4" style="text-align: center;">Cargando registros...</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Ventana Modal ABM (Unificada) -->
+    <div id="modalABM" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span id="modalEstado">Nueva Materia Prima</span>
+                <span style="cursor: pointer;" onclick="cerrarABM()">&times;</span>
+            </div>
+            <form id="formABM" onsubmit="guardarMaterial(event)" class="modal-body">
+                <input type="hidden" id="matId">
+                <div class="form-group">
+                    <label>Nombre:</label>
+                    <input type="text" id="matNombre" required>
+                </div>
+                <div class="form-group">
+                    <label>Unidad de Medida:</label>
+                    <select id="matUnidad">
+                        <option value="Metros">Metros</option>
+                        <option value="Unidades">Unidades</option>
+                        <option value="Kilos">Kilos</option>
+                        <option value="Barras">Barras</option>
+                        <option value="Placas">Placas</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Precio Unitario ($):</label>
+                    <input type="number" step="0.01" id="matPrecio" required>
+                </div>
+                <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px;">
+                    <button type="button" onclick="cerrarABM()" class="btn-action btn-volver">Cancelar</button>
+                    <button type="submit" class="btn-action btn-guardar">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Script Controlador / Puente Web -->
+    <script>
+        let materiales = [];
+        let seleccionadoId = null;
+
+        async function cargarDatos() {
+            try {
+                const res = await fetch('/api/materias_primas');
+                const data = await res.json();
+                materiales = data.materias_primas || [];
+                renderizarTabla(materiales);
+            } catch (err) {
+                console.error('Error:', err);
+            }
+        }
+
+        function renderizarTabla(lista) {
+            const tbody = document.getElementById('tablaCuerpo');
+            if (lista.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="4" style="text-align: center;">No hay datos registrados.</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = lista.map(m => `
+                <tr id="fila-${m.id_material}" onclick="seleccionarFila(${m.id_material})">
+                    <td style="text-align: center;">${m.id_material}</td>
+                    <td><b>${m.nombre}</b></td>
+                    <td style="text-align: center;">${m.unidad_medida}</td>
+                    <td style="text-align: right; color: #006100; font-weight: bold;">$ ${m.precio_unitario.toFixed(2)}</td>
+                </tr>
+            `).join('');
+            
+            seleccionadoId = null;
+        }
+
+        function seleccionarFila(id) {
+            document.querySelectorAll('.tabla-mp tr').forEach(r => r.classList.remove('selected'));
+            const fila = document.getElementById(`fila-${id}`);
+            if (fila) {
+                fila.classList.add('selected');
+                seleccionadoId = id;
+            }
+        }
+
+        function aplicarFiltro() {
+            const campo = document.getElementById('filtroCampo').value;
+            const texto = document.getElementById('filtroTexto').value.toLowerCase();
+
+            const filtrados = materiales.filter(m => {
+                return String(m[campo]).toLowerCase().includes(texto);
+            });
+            renderizarTabla(filtrados);
+        }
+
+        function abrirABM(modo) {
+            if (modo === 'MODIFICAR') {
+                if (!seleccionadoId) {
+                    alert('Seleccione un material para modificar.');
+                    return;
+                }
+                const mat = materiales.find(m => m.id_material === seleccionadoId);
+                document.getElementById('modalEstado').innerText = 'Modificando Material';
+                document.getElementById('matId').value = mat.id_material;
+                document.getElementById('matNombre').value = mat.nombre;
+                document.getElementById('matUnidad').value = mat.unidad_medida;
+                document.getElementById('matPrecio').value = mat.precio_unitario;
+            } else {
+                document.getElementById('modalEstado').innerText = 'Nueva Materia Prima';
+                document.getElementById('matId').value = '';
+                document.getElementById('matNombre').value = '';
+                document.getElementById('matUnidad').value = 'Metros';
+                document.getElementById('matPrecio').value = '';
+            }
+            document.getElementById('modalABM').style.display = 'flex';
+        }
+
+        function cerrarABM() {
+            document.getElementById('modalABM').style.display = 'none';
+        }
+
+        async function guardarMaterial(e) {
+            e.preventDefault();
+            const id = document.getElementById('matId').value;
+            const payload = {
+                nombre: document.getElementById('matNombre').value.trim(),
+                unidad_medida: document.getElementById('matUnidad').value,
+                precio_unitario: parseFloat(document.getElementById('matPrecio').value) || 0.0
+            };
+
+            const url = id ? `/api/materias_primas/${id}` : '/api/materias_primas';
+            const method = id ? 'PUT' : 'POST';
+
+            const res = await fetch(url, {
+                method: method,
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+
+            if (res.ok) {
+                cerrarABM();
+                cargarDatos();
+            } else {
+                alert('Ocurrió un error al guardar.');
+            }
+        }
+
+        async function eliminarSeleccionado() {
+            if (!seleccionadoId) {
+                alert('Seleccione un material para eliminar.');
+                return;
+            }
+
+            if (confirm(`¿Seguro que desea eliminar el material ID ${seleccionadoId}?`)) {
+                const res = await fetch(`/api/materias_primas/${seleccionadoId}`, { method: 'DELETE' });
+                if (res.ok) {
+                    cargarDatos();
+                } else {
+                    alert('Error al eliminar el elemento.');
+                }
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', cargarDatos);
+    </script>
+</body>
+</html>
