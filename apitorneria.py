@@ -1,5 +1,8 @@
+import os
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
 from conexion import conectar_db
 
 app = FastAPI(
@@ -16,6 +19,28 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Montar la carpeta 'archivos' para servir el CSS, imágenes y scripts estáticos
+if os.path.exists("archivos"):
+    app.mount("/archivos", StaticFiles(directory="archivos"), name="archivos")
+
+# ---------------------------------------------------------
+# ENDPOINTS PARA SERVIR PÁGINAS HTML
+# ---------------------------------------------------------
+
+@app.get("/", response_class=FileResponse)
+@app.get("/principal", response_class=FileResponse)
+def servir_principal():
+    """Servir la página principal del sistema (Principal.html)."""
+    ruta_html = os.path.join(os.path.dirname(__file__), "Principal.html")
+    if os.path.exists(ruta_html):
+        return FileResponse(ruta_html)
+    raise HTTPException(status_code=404, detail="No se encontró el archivo Principal.html")
+
+
+# ---------------------------------------------------------
+# ENDPOINTS DE LA API (DATOS)
+# ---------------------------------------------------------
 
 # 1. Endpoint de estado de la API / Base de Datos
 @app.get("/api/estado")
