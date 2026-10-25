@@ -5,35 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GESTIÓN DE TORNERÍA</title>
 
-    <!-- Ícono ubicado en la carpeta static -->
-    <link rel="icon" type="image/x-icon" href="/static/iconom.ico">
+    <!-- Ícono ubicado en la carpeta static / archivos -->
+    <link rel="icon" type="image/x-icon" href="/archivos/iconom.ico">
 
     <!-- CSS de la vista principal -->
     <link rel="stylesheet" href="/archivos/principalvista.css">
-
-    <!-- Cliente de Supabase vía CDN -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-    <style>
-        /* Estilos para badges de estado */
-        .badge-estado {
-            font-size: 11px;
-            padding: 3px 8px;
-            border-radius: 10px;
-            margin-left: 6px;
-            font-weight: bold;
-            display: inline-block;
-            vertical-align: middle;
-        }
-        .badge-ok {
-            background-color: #28a745;
-            color: #ffffff;
-        }
-        .badge-pendiente {
-            background-color: #ffc107;
-            color: #212529;
-        }
-    </style>
 </head>
 <body>
 
@@ -43,7 +19,7 @@
             <!-- 1. MENÚ DESPLEGABLE: PRESUPUESTOS -->
             <div class="dropdown">
                 <button class="dropdown-btn" onclick="toggleDropdown(event, 'menuPresupuestos')">
-                    PRESUPUESTOS <span id="badgeEstadoPresupuestos" class="badge-estado badge-pendiente">...</span> ▼
+                    PRESUPUESTOS ▼
                 </button>
                 <div id="menuPresupuestos" class="dropdown-menu">
                     <a href="/presupuestos/nuevo">Nuevo Presupuesto</a>
@@ -56,38 +32,13 @@
             <!-- 2. BOTÓN FIJO: MATERIAS PRIMAS -->
             <a href="/materias_primas" class="custom-button">MATERIAS PRIMAS</a>
 
-            <!-- 3. MENÚ DESPLEGABLE: CLIENTES -->
-            <div class="dropdown">
-                <button class="dropdown-btn" onclick="toggleDropdown(event, 'menuClientes')">CLIENTES ▼</button>
-                <div id="menuClientes" class="dropdown-menu">
-                    <a href="/clientes/lista">Listado de Clientes</a>
-                    <a href="/clientes/nuevo">Alta de Cliente</a>
-                </div>
-            </div>
-
-            <!-- 4. MENÚ DESPLEGABLE: PARÁMETROS -->
-            <div class="dropdown">
-                <button class="dropdown-btn" onclick="toggleDropdown(event, 'menuParametros')">PARÁMETROS ▼</button>
-                <div id="menuParametros" class="dropdown-menu">
-                    <a href="/parametros/unidades">Unidades de Medida</a>
-                    <a href="/parametros/configuracion">Configuración General</a>
-                </div>
-            </div>
-
-            <!-- 5. BOTÓN SALIR -->
-            <a href="javascript:void(0)" onclick="cerrarSesion()" class="custom-button">SALIR</a>
+            <!-- 3. BOTÓN SALIR -->
+            <a href="javascript:void(0)" onclick="cerrarSesion()" class="custom-button salir">SALIR</a>
 
         </div>
     </div>
 
     <script>
-        // Configuración de Supabase
-        const SUPABASE_URL = 'https://wieljyluvxlsolrjcnjk.supabase.co';
-        const SUPABASE_ANON_KEY = 'TU_ANON_KEY_DE_SUPABASE'; // Reemplazar por tu clave anon de Supabase
-        
-        const { createClient } = supabase;
-        const _supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
         // Función para abrir / cerrar desplegables
         function toggleDropdown(event, menuId) {
             event.stopPropagation();
@@ -111,41 +62,12 @@
             });
         });
 
-        // Consultar estado de presupuestos desde Supabase al cargar la página
-        async function consultarEstadoPresupuestos() {
-            const badge = document.getElementById('badgeEstadoPresupuestos');
-            if (!badge) return;
-
-            try {
-                // Consulta para verificar registros pendientes o estado de la BD
-                const { data, error, count } = await _supabase
-                    .from('presupuestos')
-                    .select('*', { count: 'exact', head: true });
-
-                if (error) {
-                    badge.className = 'badge-estado badge-pendiente';
-                    badge.innerText = '⚠️ ERROR';
-                    return;
-                }
-
-                badge.className = 'badge-estado badge-ok';
-                badge.innerText = `✅ ${count || 0}`;
-                badge.title = `${count || 0} presupuestos registrados`;
-            } catch (err) {
-                console.error('Error al consultar Supabase:', err);
-                if (badge) badge.style.display = 'none';
-            }
-        }
-
+        // Función para confirmar la salida
         function cerrarSesion() {
-            if (confirm("¿Desea cerrar el sistema?")) {
+            if (confirm("¿Desea salir del sistema?")) {
                 window.location.href = "/";
             }
         }
-
-        document.addEventListener('DOMContentLoaded', function() {
-            consultarEstadoPresupuestos();
-        });
     </script>
 </body>
 </html>
