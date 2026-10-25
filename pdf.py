@@ -104,8 +104,7 @@ def generar_pdf_presupuesto(cabecera, detalles):
     col1 = [
         Paragraph("TORNERÍA GONZALES", style_empresa_titulo),
         Paragraph("Trabajos de Mecanizado y Tornería", style_empresa_sub),
-        Paragraph("Teléfono: (3537) - Taller", style_empresa_sub),
-        Paragraph("Email: contacto@torneriagonzales.com", style_empresa_sub),
+        Paragraph("Teléfono: 3537 65-4177", style_empresa_sub),
     ]
 
     fecha_val = cabecera.get("fecha", "")
@@ -196,16 +195,9 @@ def generar_pdf_presupuesto(cabecera, detalles):
     total_gen = cabecera.get("total_general", subtotal_mat + mano_obra)
 
     totales_datos = [
+    
         [
-            Paragraph("SUBTOTAL MATERIALES:", ParagraphStyle('TLbl', parent=style_seccion_hdr, alignment=2)),
-            Paragraph(f"$ {subtotal_mat:.2f}", style_td_right)
-        ],
-        [
-            Paragraph("MANO DE OBRA:", ParagraphStyle('TLbl', parent=style_seccion_hdr, alignment=2)),
-            Paragraph(f"$ {mano_obra:.2f}", style_td_right)
-        ],
-        [
-            Paragraph("TOTAL GENERAL:", ParagraphStyle('TLblBold', parent=style_seccion_hdr, alignment=2, fontSize=11)),
+            Paragraph("TOTAL :", ParagraphStyle('TLblBold', parent=style_seccion_hdr, alignment=2, fontSize=11)),
             Paragraph(f"<b>$ {total_gen:.2f}</b>", ParagraphStyle('TRightBold', parent=style_td_right, fontSize=11))
         ]
     ]
