@@ -1,0 +1,81 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body, html {
+    width: 100%;
+    height: 100%;
+    background-color: #ffffff;
+}
+
+/* Toolstrip superior */
+.toolstrip {
+    width: 100%;
+    height: 55px;
+    background-color: #dde6ed;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 20px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.toolstrip-titulo {
+    font-size: 12pt;
+    font-weight: bold;
+    color: #003366;
+}
+
+.btn-action {
+    background-color: #cfe2f3;
+    color: #003366;
+    font-size: 10pt;
+    font-weight: bold;
+    border: none;
+    padding: 8px 14px;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-left: 6px;
+    text-decoration: none;
+}
+
+.btn-action:hover { background-color: #a4c2f4; }
+.btn-modificar { background-color: #fff2cc; color: #7f6000; }
+.btn-modificar:hover { background-color: #ffe599; }
+.btn-eliminar { background-color: #ffc7ce; color: #9c0006; }
+.btn-eliminar:hover { background-color: #f8a5ad; }
+.btn-imprimir { background-color: #2b579a; color: #ffffff; }
+.btn-imprimir:hover { background-color: #1b365d; }
+
+/* Tabla de Presupuestos */
+.tabla-container { padding: 20px; }
+.tabla-presu { width: 100%; border-collapse: collapse; border: 1px solid #cccccc; }
+.tabla-presu th { background-color: #d9e1f2; color: #003366; font-size: 11pt; font-weight: bold; padding: 10px; border-bottom: 1px solid #cccccc; text-align: left; }
+.tabla-presu td { padding: 8px 10px; border-bottom: 1px solid #eeeeee; font-size: 10pt; }
+.tabla-presu tr:hover { background-color: #cfe2f3; cursor: pointer; }
+.tabla-presu tr.selected { background-color: #a4c2f4 !important; }
+
+/* Ventana Modal ABM */
+.modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; align-items: center; justify-content: center; z-index: 2000; }
+.modal-content { background: #ffffff; width: 750px; border-radius: 6px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); overflow: hidden; }
+.modal-header { background: #dde6ed; padding: 12px 20px; font-weight: bold; color: #003366; display: flex; justify-content: space-between; }
+.modal-body { padding: 20px; max-height: 85vh; overflow-y: auto; }
+
+.panel-sec { border: 1px solid #cccccc; border-radius: 4px; padding: 12px; margin-bottom: 15px; }
+.panel-titulo { font-weight: bold; color: #003366; margin-bottom: 8px; font-size: 10pt; }
+
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.form-group { display: flex; flex-direction: column; }
+.form-group label { font-weight: bold; color: #003366; margin-bottom: 4px; font-size: 9pt; }
+.form-group input, .form-group select { padding: 6px; border: 1px solid #cccccc; border-radius: 4px; font-size: 10pt; }
+
+.tabla-detalles { width: 100%; border-collapse: collapse; margin-top: 8px; }
+.tabla-detalles th { background: #e6eedf; color: #333; padding: 6px; font-size: 9pt; border-bottom: 1px solid #ccc; text-align: left; }
+.tabla-detalles td { padding: 6px; border-bottom: 1px solid #eee; font-size: 9pt; }
+
+.totales-grid { display: flex; justify-content: space-between; align-items: center; background: #f9f9f9; padding: 10px; border-radius: 4px; margin-top: 10px; }
+.btn-guardar { background-color: #c6efce; color: #006100; }
+.btn-guardar:hover { background-color: #a3e0b0; }
