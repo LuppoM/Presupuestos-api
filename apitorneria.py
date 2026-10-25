@@ -3,15 +3,20 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
-from conexion import conectar_db
+from pydantic import BaseModel
+from typing import Optional
 
-app = FastAPI(
-    title="API Tornería",
-    description="Endpoints para la interfaz principal del sistema de tornería",
-    version="1.0.0"
+# Importamos las funciones del modelo
+from mpmodelo import (
+    obtener_todas_materias_primas,
+    obtener_materia_prima_por_id,
+    insertar_materia_prima,
+    actualizar_materia_prima,
+    eliminar_materia_prima
 )
 
-# Permitir solicitudes desde el frontend HTML
+app = FastAPI(title="API Tornería", version="1.0.0")
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -20,106 +25,60 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Montar la carpeta 'archivos' para servir el CSS, imágenes y scripts estáticos
 if os.path.exists("archivos"):
     app.mount("/archivos", StaticFiles(directory="archivos"), name="archivos")
 
-# ---------------------------------------------------------
-# ENDPOINTS PARA SERVIR PÁGINAS HTML
-# ---------------------------------------------------------
+class MateriaPrimaSchema(BaseModel):
+    nombre: str
+    unidad_medida: str
+    precio_unitario: float
 
+# Vistas HTML
 @app.get("/", response_class=FileResponse)
 @app.get("/principal", response_class=FileResponse)
 def servir_principal():
-    """Servir la página principal del sistema (Principal.html)."""
-    ruta_html = os.path.join(os.path.dirname(__file__), "Principal.html")
-    if os.path.exists(ruta_html):
-        return FileResponse(ruta_html)
-    raise HTTPException(status_code=404, detail="No se encontró el archivo Principal.html")
+    return FileResponse(os.path.join(os.path.dirname(__file__), "Principal.html"))
 
+@app.get("/materias_primas", response_class=FileResponse)
+def servir_materias_primas():
+    return FileResponse(os.path.join(os.path.dirname(__file__), "mp.html"))
 
-# ---------------------------------------------------------
-# ENDPOINTS DE LA API (DATOS)
-# ---------------------------------------------------------
-
-# 1. Endpoint de estado de la API / Base de Datos
-@app.get("/api/estado")
-def obtener_estado_conexion():
-    try:
-        with conectar_db() as conn:
-            with conn.cursor() as cursor:
-                cursor.execute("SELECT version();")
-                version = cursor.fetchone()
-                return {
-                    "status": "ok",
-                    "mensaje": "Conexión a Supabase exitosa",
-                    "version_pg": version[0]
-                }
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error de conexión: {str(e)}")
-
-# 2. Endpoint para obtener resumen/estado de Presupuestos (badge del menú)
-@app.get("/api/presupuestos/resumen")
-def resumen_presupuestos():
-    try:
-        with conectar_db() as conn:
-            with conn.cursor() as cursor:
-                cursor.execute("SELECT COUNT(*) FROM presupuestos;")
-                total = cursor.fetchone()[0]
-                
-                return {
-                    "total_presupuestos": total,
-                    "estado": "OK"
-                }
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error al obtener presupuestos: {str(e)}")
-
-# 3. Endpoint para listar Materias Primas
+# Endpoints de API
 @app.get("/api/materias_primas")
-def listar_materias_primas():
+def api_listar_materias_primas():
     try:
-        with conectar_db() as conn:
-            with conn.cursor() as cursor:
-                cursor.execute(
-                    "SELECT id_material, nombre, unidad_medida, precio_unitario FROM materias_primas ORDER BY nombre ASC;"
-                )
-                filas = cursor.fetchall()
-                materiales = [
-                    {
-                        "id_material": f[0],
-                        "nombre": f[1],
-                        "unidad_medida": f[2],
-                        "precio_unitario": float(f[3]) if f[3] is not None else 0.0
-                    }
-                    for f in filas
-                ]
-                return {"materias_primas": materiales}
+        data = obtener_todas_materias_primas()
+        return {"materias_primas": data}
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error al consultar materias primas: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
 
-# 4. Endpoint para listar Presupuestos
-@app.get("/api/presupuestos")
-def listar_presupuestos():
+@app.get("/api/materias_primas/{id_material}")
+def api_obtener_materia_prima(id_material: int):
+    data = obtener_materia_prima_por_id(id_material)
+    if not data:
+        raise HTTPException(status_code=404, detail="Material no encontrado")
+    return data
+
+@app.post("/api/materias_primas")
+def api_crear_materia_prima(material: MateriaPrimaSchema):
     try:
-        with conectar_db() as conn:
-            with conn.cursor() as cursor:
-                cursor.execute(
-                    "SELECT id_presupuesto, fecha, cliente, descripcion, mano_obra, total_materiales, total_general "
-                    "FROM presupuestos ORDER BY id_presupuesto DESC;"
-                )
-                filas = cursor.fetchall()
-                presupuestos = [
-                    {
-                        "id_presupuesto": f[0],
-                        "fecha": f[1],
-                        "cliente": f[2],
-                        "descripcion": f[3],
-                        "mano_obra": float(f[4]) if f[4] is not None else 0.0,
-                        "total_materiales": float(f[5]) if f[5] is not None else 0.0,
-                        "total_general": float(f[6]) if f[6] is not None else 0.0
-                    }
-                    for f in filas
-                ]
-                return {"presupuestos": presupuestos}
+        nuevo_id = insertar_materia_prima(material.dict())
+        return {"mensaje": "Guardado correctamente", "id_material": nuevo_id}
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error al consultar presupuestos: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.put("/api/materias_primas/{id_material}")
+def api_actualizar_materia_prima(id_material: int, material: MateriaPrimaSchema):
+    try:
+        actualizar_materia_prima(id_material, material.dict())
+        return {"mensaje": "Actualizado correctamente"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.delete("/api/materias_primas/{id_material}")
+def api_eliminar_materia_prima(id_material: int):
+    try:
+        eliminar_materia_prima(id_material)
+        return {"mensaje": "Eliminado correctamente"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
