@@ -5,7 +5,7 @@ from contextlib import contextmanager
 # Carga la URI desde las variables de entorno de Render
 SUPABASE_URI = os.getenv(
     "SUPABASE_URI",
-    "postgresql://postgres.wieljyluvxlsolrjcnjk:[TU_CONTRASEÑA]@aws-0-us-east-1.pooler.supabase.com:6543/postgres"
+    "postgresql://postgres.wieljyluvxlsolrjcnjk:lautarodrogadicto@aws-0-us-east-1.pooler.supabase.com:6543/postgres"
 )
 
 @contextmanager
